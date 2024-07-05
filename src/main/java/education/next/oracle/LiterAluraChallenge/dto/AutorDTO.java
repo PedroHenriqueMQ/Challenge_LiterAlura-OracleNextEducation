@@ -8,4 +8,9 @@ public record AutorDTO (
         @JsonAlias("name") String nome,
         @JsonAlias("birth_year") int anoNascimento,
         @JsonAlias("death_year") int anoFalecimento
-) {}
+) {
+    @Override
+    public String toString() {
+        return nome;
+    }
+}

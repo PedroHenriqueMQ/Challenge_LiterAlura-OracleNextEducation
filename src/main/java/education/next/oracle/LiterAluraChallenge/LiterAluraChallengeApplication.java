@@ -1,6 +1,6 @@
 package education.next.oracle.LiterAluraChallenge;
 
-import education.next.oracle.LiterAluraChallenge.service.ConsumidorDeAPI;
+import education.next.oracle.LiterAluraChallenge.menu.Menu;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,6 +14,7 @@ public class LiterAluraChallengeApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		System.out.println(ConsumidorDeAPI.fazerRequest("https://gutendex.com/books/5432/"));
+		//System.out.println(ConsumidorDeAPI.fazerRequest("https://gutendex.com/books/?search=é um"));
+		Menu.iniciar();
 	}
 }

@@ -11,4 +11,18 @@ public record LivroDTO(
         @JsonAlias("authors") List<AutorDTO> autores,
         @JsonAlias("languages") List<String> idiomas,
         @JsonAlias("download_count") int numDownloads
-) {}
+) {
+    @Override
+    public String toString() {
+        return String.format(
+                        """
+                        Livro: %s
+                        Autor(es): %s
+                        """,
+                titulo,
+                autores.size() > 1 ?
+                        (autores + "...").replace("[","").replace("]","") :
+                        autores.toString().replace("[","").replace("]","")
+        );
+    }
+}
