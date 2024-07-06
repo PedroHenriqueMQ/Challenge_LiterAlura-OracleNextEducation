@@ -1,12 +1,13 @@
 package education.next.oracle.LiterAluraChallenge.model;
 
-
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "idiomas")
-@Data
+@Getter
+@NoArgsConstructor
 public class Idioma {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -14,4 +15,8 @@ public class Idioma {
     private String linguagem;
     @ManyToOne
     private Livro livro;
+
+    public Idioma(String idioma) {
+        this.linguagem = idioma;
+    }
 }
