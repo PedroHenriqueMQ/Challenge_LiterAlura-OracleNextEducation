@@ -4,6 +4,7 @@ import education.next.oracle.LiterAluraChallenge.dto.AutorDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "autores")
@@ -17,6 +18,7 @@ public class Autor {
     private int anoNascimento;
     private int anoFalecimento;
     @ManyToOne
+    @Setter
     private Livro livro;
 
     public Autor(AutorDTO autorDTO) {
@@ -24,4 +26,5 @@ public class Autor {
         this.anoNascimento = autorDTO.anoNascimento();
         this.anoFalecimento = autorDTO.anoFalecimento();
     }
+
 }

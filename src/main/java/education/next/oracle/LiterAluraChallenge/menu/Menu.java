@@ -1,12 +1,14 @@
 package education.next.oracle.LiterAluraChallenge.menu;
 
 import education.next.oracle.LiterAluraChallenge.dto.LivroDTO;
+import education.next.oracle.LiterAluraChallenge.model.Linguagem;
 import education.next.oracle.LiterAluraChallenge.model.Livro;
 import education.next.oracle.LiterAluraChallenge.service.ConsumidorDeAPI;
 import education.next.oracle.LiterAluraChallenge.service.LivroService;
 import lombok.AllArgsConstructor;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class Menu {
@@ -94,20 +96,20 @@ public class Menu {
         );
 
         return switch (proxEscolha()) {
-            case 1 -> consultarLivrosInternet("todos");
-            case 2 -> consultarLivrosInternet("en");
-            case 3 -> consultarLivrosInternet("pt");
-            case 4 -> consultarLivrosInternet("es");
+            case 1 -> consultarLivrosInternet(Linguagem.TODOS);
+            case 2 -> consultarLivrosInternet(Linguagem.INGLES);
+            case 3 -> consultarLivrosInternet(Linguagem.PORTUGUES);
+            case 4 -> consultarLivrosInternet(Linguagem.ESPANHOL);
             case 5 -> false;
             default -> erroEscolhaDeOpcao();
         };
     }
 
-    private boolean consultarLivrosInternet(String idioma) {
+    private boolean consultarLivrosInternet(Linguagem linguagem) {
         String enderecoDeBuscaPadrao = "https://gutendex.com/books/";
 
         printador (
-                 ("Que tipo de consulta você deseja fazer? (Idioma atual: %s)").formatted(idioma),
+                 ("Que tipo de consulta você deseja fazer? (Idioma atual: %s)").formatted(linguagem.getIdioma()),
                  new String[]{
                          "Pesquisar por título",
                          "Listar todos os livros",
@@ -122,16 +124,14 @@ public class Menu {
                 String pesquisa = new Scanner(System.in).nextLine();
                 String enderecoBusca = String.format(enderecoDeBuscaPadrao + "?search=%s", pesquisa);
 
-                List<LivroDTO> busca = buscaApi(enderecoBusca, idioma);
-                printarBuscaApi(busca);
-                while (persistirLivros(busca));
+                List<LivroDTO> busca = buscaApi(enderecoBusca, linguagem);
+                if (printarBuscaApi(busca)) while (persistirLivros(busca));
 
                 yield false;
             }
             case 2 -> {
-                List<LivroDTO> busca = buscaApi(enderecoDeBuscaPadrao, idioma);
-                printarBuscaApi(busca);
-                while (persistirLivros(busca));
+                List<LivroDTO> busca = buscaApi(enderecoDeBuscaPadrao, linguagem);
+                if (printarBuscaApi(busca)) while (persistirLivros(busca));
 
                 yield false;
             }
@@ -141,34 +141,39 @@ public class Menu {
         };
     }
 
-    private List<LivroDTO> buscaApi (String enderecoBusca, String idioma) {
+    private List<LivroDTO> buscaApi (String enderecoBusca, Linguagem linguagem) {
         boolean buscaGeral = enderecoBusca.endsWith("/books/");
 
-        String enderecoAtualizado = buscaGeral ?
-                enderecoBusca :
-                enderecoBusca + String.format("?languages=%s", idioma);
+        String enderecoAtualizado = buscaGeral && !linguagem.getIdioma().equals("todos") ?
+                enderecoBusca + String.format("?languages=%s", linguagem.getIdioma()) :
+                enderecoBusca;
 
         List<LivroDTO> consulta = ConsumidorDeAPI.fazerRequest(enderecoAtualizado);
         List<LivroDTO> itensDaConsultaFiltrados;
 
-        if (buscaGeral) itensDaConsultaFiltrados = new ArrayList<>(consulta);
-        else itensDaConsultaFiltrados = consulta.stream().filter(c -> c.idiomas().contains(idioma)).toList();
-
-        System.out.println(itensDaConsultaFiltrados);
+        if (linguagem.getIdioma().equals("todos")) itensDaConsultaFiltrados = new ArrayList<>(consulta);
+        else itensDaConsultaFiltrados = consulta.stream().filter(
+                livroDTO -> livroDTO.idiomas().contains(linguagem.getIdioma())
+                ).toList();
 
         return itensDaConsultaFiltrados;
     }
 
-    private void printarBuscaApi(List<LivroDTO> itensDaConsultaFiltrados) {
+    private boolean printarBuscaApi(List<LivroDTO> itensDaConsultaFiltrados) {
         for (int i = 0; i < itensDaConsultaFiltrados.size(); i++) {
             System.out.print("_______________________________________________________\n" +
                     "Livro " + (i+1) + ":\n" + itensDaConsultaFiltrados.get(i).toString());
         }
+
+        if (itensDaConsultaFiltrados.isEmpty()) {
+            System.err.println("Nenhum livro encontrado!");
+            return false;
+        } else return true;
     }
 
     private boolean persistirLivros (List<LivroDTO> livrosDTO) {
         printador(
-                "Deseja salvar algum(ns) livro(s)?",
+                "Deseja salvar algum(s) livro(s)?",
                 new String[]{"Sim", "Não"}
         );
 
@@ -191,8 +196,8 @@ public class Menu {
         );
 
         return switch (proxEscolha()) {
-            case 1 -> salvarIntervalo(livrosDTO, new int[1]);
-            case 2 -> salvarIntervalo(livrosDTO, new int[2]);
+            case 1 -> salvarIntervalo(livrosDTO, new int[]{0});
+            case 2 -> salvarIntervalo(livrosDTO, new int[]{0, 0});
             case 3 -> salvarTodos(livrosDTO);
             case 4 -> true;
             default -> erroEscolhaDeOpcao();
@@ -208,22 +213,22 @@ public class Menu {
             intervalo[i] = proxEscolha();
         }
 
-        if (intervalo[0] <= 0 && intervalo[1] <= 0) return erroEscolhaDeOpcao();
-        else if (intervalo[0] > livrosDTO.size() || intervalo[1] > livrosDTO.size()) return erroEscolhaDeOpcao();
-
-        int maiorValor = Math.max(intervalo[0], intervalo[1]);
-        if (intervalo[0] <= 0 || intervalo[1] <= 0) {
-            livroService.salvarLivro(
-                    new Livro(livrosDTO.get(maiorValor))
-            );
-
-            return false;
+        for (int valor : intervalo) {
+            if (valor <= 0) return erroEscolhaDeOpcao();
+            else if (valor > livrosDTO.size()) return erroEscolhaDeOpcao();
         }
 
-        int menorValor = Math.min(intervalo[0], intervalo[1]);
-        livrosDTO.subList(menorValor-1, maiorValor).forEach(
-                livroDTO -> livroService.salvarLivro(new Livro(livroDTO))
-        );
+        if (intervalo.length == 1) {
+            livroService.salvarLivro(
+                    new Livro(livrosDTO.get(0))
+            );
+        } else {
+            int maiorValor = Arrays.stream(intervalo).max().getAsInt();
+            int menorValor = Arrays.stream(intervalo).min().getAsInt();
+            livrosDTO.subList(menorValor-1, maiorValor).forEach(
+                    livroDTO -> livroService.salvarLivro(new Livro(livroDTO))
+            );
+        }
 
         return false;
     }

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,15 +18,23 @@ public class Livro {
     private Long id;
     private String titulo;
     @OneToMany(mappedBy = "livro", cascade = CascadeType.ALL)
-    private List<Autor> autores;
+    private List<Autor> autores = new ArrayList<>();
     @OneToMany(mappedBy = "livro", cascade = CascadeType.ALL)
-    private List<Idioma> idiomas;
+    private List<Idioma> idiomas = new ArrayList<>();
     private int numDownloads;
 
     public Livro (LivroDTO livroDTO) {
         this.titulo = livroDTO.titulo();
-        livroDTO.autores().forEach(autorDTO -> this.autores.add(new Autor(autorDTO)));
-        livroDTO.idiomas().forEach(idioma -> this.idiomas.add(new Idioma(idioma)));
+        livroDTO.autores().forEach(autorDTO -> {
+            Autor autor = new Autor(autorDTO);
+            autor.setLivro(this);
+            this.autores.add(autor);
+        });
+        livroDTO.idiomas().forEach(idiomaDTO -> {
+            Idioma idioma = new Idioma(Linguagem.converteParaLinguagem(idiomaDTO));
+            idioma.setLivro(this);
+            this.idiomas.add(idioma);
+        });
         this.numDownloads = livroDTO.numDownloads();
     }
 }
