@@ -8,7 +8,6 @@ import education.next.oracle.LiterAluraChallenge.service.LivroService;
 import lombok.AllArgsConstructor;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class Menu {
@@ -32,7 +31,7 @@ public class Menu {
     }
 
     private boolean erroEscolhaDeOpcao () {
-        System.err.println("Digite um número que esteja na lista de seleção.");
+        System.err.println("Digite uma opção válida.");
 
         try {
             Thread.sleep(1500); // Espera 1 segundo e meio
@@ -173,15 +172,62 @@ public class Menu {
 
     private boolean persistirLivros (List<LivroDTO> livrosDTO) {
         printador(
-                "Deseja salvar algum(s) livro(s)?",
-                new String[]{"Sim", "Não"}
+                "O que você deseja fazer com o resultado de sua pesquisa?",
+                new String[]{
+                        "Lista de autores",
+                        "Lista de autores vivos",
+                        "Salvar offline",
+                        "Concluído"
+                }
         );
 
         return switch (proxEscolha()) {
-            case 1 -> escolhaDePersistenciaDosLivros(livrosDTO);
-            case 2 -> false;
+            case 1 -> listarAutores(livrosDTO);
+            case 2 -> listarAutoresVivos(livrosDTO);
+            case 3 -> escolhaDePersistenciaDosLivros(livrosDTO);
+            case 4 -> false;
             default -> erroEscolhaDeOpcao();
         };
+    }
+
+    private boolean listarAutores(List<LivroDTO> livrosDTO) {
+        List<String> nomesAutores = livrosDTO.stream()
+                .flatMap(livroDTO -> livroDTO.autores().stream())
+                .map(autorDTO -> {
+                    String[] nomeSplit = autorDTO.nome().split(",");
+                    return Arrays.stream(nomeSplit).reduce((a, b) -> b + " " + a).orElse("");
+                })
+                .distinct()
+                .toList();
+
+        System.out.println("Lista de autores: ");
+        for (int i = 0; i < nomesAutores.size(); i++) {
+            System.out.println("Autor %d -> %s".formatted(i+1, nomesAutores.get(i)));
+        }
+
+        return true;
+    }
+
+    private boolean listarAutoresVivos(List<LivroDTO> livrosDTO) {
+        System.out.print("Digite um ano de referência: ");
+        int ano = proxEscolha();
+
+        List<String> nomesAutores = livrosDTO.stream()
+                .flatMap(livroDTO -> livroDTO.autores().stream())
+                .filter(autorDTO -> autorDTO.anoFalecimento() > ano)
+                .map(autorDTO -> {
+                    String[] nomeSplit = autorDTO.nome().split(",");
+                    return Arrays.stream(nomeSplit).reduce((a, b) -> b + " " + a).orElse("");
+                })
+                .distinct()
+                .toList();
+
+        System.out.printf("Lista de autores vivos até o ano de %d: %n", ano);
+        for (int i = 0; i < nomesAutores.size(); i++) {
+            System.out.println("Autor %d -> %s".formatted(i+1, nomesAutores.get(i)));
+        }
+
+        return true;
     }
 
     private boolean escolhaDePersistenciaDosLivros (List<LivroDTO> livrosDTO) {
@@ -230,7 +276,7 @@ public class Menu {
             );
         }
 
-        return false;
+        return true;
     }
 
     private boolean salvarTodos(List<LivroDTO> livrosDTO) {
@@ -238,6 +284,6 @@ public class Menu {
                 livroDTO -> livroService.salvarLivro(new Livro(livroDTO))
         );
 
-        return false;
+        return true;
     }
 }
