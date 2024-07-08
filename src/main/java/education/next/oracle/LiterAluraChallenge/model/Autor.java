@@ -26,5 +26,4 @@ public class Autor {
         this.anoNascimento = autorDTO.anoNascimento();
         this.anoFalecimento = autorDTO.anoFalecimento();
     }
-
 }

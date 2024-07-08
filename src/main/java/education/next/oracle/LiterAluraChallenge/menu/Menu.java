@@ -68,7 +68,9 @@ public class Menu {
             printador(
                     "O que você deseja fazer?",
                     new String[]{
-                            "Consultar livros da internet"
+                            "Consultar livros da internet",
+                            "Consultar livros salvos offline",
+                            "Sair"
                     }
             );
 
@@ -77,6 +79,9 @@ public class Menu {
                     while (selecionaIdiomaConsulta());
                     break;
                 case 2:
+                    while (selecionaTipoConsultaOffline());
+                    break;
+                case 3:
                     condicaoDeRepeticao = false;
             }
         }
@@ -200,9 +205,9 @@ public class Menu {
                 .distinct()
                 .toList();
 
-        System.out.println("Lista de autores: ");
+        System.out.println("Lista de autores:");
         for (int i = 0; i < nomesAutores.size(); i++) {
-            System.out.println("Autor %d -> %s".formatted(i+1, nomesAutores.get(i)));
+            System.out.printf("Autor %d -> %s%n", i+1, nomesAutores.get(i));
         }
 
         return true;
@@ -222,9 +227,9 @@ public class Menu {
                 .distinct()
                 .toList();
 
-        System.out.printf("Lista de autores vivos até o ano de %d: %n", ano);
+        System.out.printf("Lista de autores vivos até o ano de %d:%n", ano);
         for (int i = 0; i < nomesAutores.size(); i++) {
-            System.out.println("Autor %d -> %s".formatted(i+1, nomesAutores.get(i)));
+            System.out.printf("Autor %d -> %s%n", i+1, nomesAutores.get(i));
         }
 
         return true;
@@ -283,6 +288,82 @@ public class Menu {
         livrosDTO.forEach(
                 livroDTO -> livroService.salvarLivro(new Livro(livroDTO))
         );
+
+        return true;
+    }
+
+    private boolean selecionaTipoConsultaOffline() {
+        printador(
+                "Qual tipo de consulta deseja fazer?",
+                new String[]{
+                        "Quantidade de livros em um idioma"
+                }
+        );
+
+        return switch (proxEscolha()) {
+            case 1 -> buscarPorIdiomaOffline();
+            default -> erroEscolhaDeOpcao();
+        };
+    }
+
+    private boolean buscarPorIdiomaOffline () {
+        printador (
+                "Qual idioma você prefere para consulta?",
+                new String[]{
+                        "Todos idiomas",
+                        "Inglês",
+                        "Português",
+                        "Espanhol",
+                        "Voltar"
+                }
+        );
+
+        List<Livro> livrosEncontrados;
+
+        return switch (proxEscolha()) {
+            case 1 -> {
+                livrosEncontrados = livroService.encontrarTodosOsLivros();
+                boolean busca = printarBuscaOffline(livrosEncontrados, "\"todos idiomas\"");
+                System.out.println("_______________________________________________________\n" +
+                        "Quantidade de livros encontrados: " + livrosEncontrados.size());
+
+                yield busca;
+            }
+            case 2 -> {
+                livrosEncontrados = livroService.encontrarLivrosPorLinguagem(Linguagem.INGLES);
+                boolean busca = printarBuscaOffline(livrosEncontrados, "\"inglês\"");
+                System.out.println("_______________________________________________________\n" +
+                        "Quantidade de livros encontrados: " + livrosEncontrados.size());
+                yield busca;
+            }
+            case 3 -> {
+                livrosEncontrados = livroService.encontrarLivrosPorLinguagem(Linguagem.PORTUGUES);
+                boolean busca = printarBuscaOffline(livrosEncontrados, "\"português\"");
+                System.out.println("_______________________________________________________\n" +
+                        "Quantidade de livros encontrados: " + livrosEncontrados.size());
+                yield busca;
+            }
+            case 4 -> {
+                livrosEncontrados = livroService.encontrarLivrosPorLinguagem(Linguagem.ESPANHOL);
+                boolean busca = printarBuscaOffline(livrosEncontrados, "\"espanhol\"");
+                System.out.println("_______________________________________________________\n" +
+                        "Quantidade de livros encontrados: " + livrosEncontrados.size());
+                yield busca;
+            }
+            case 5 -> false;
+            default -> erroEscolhaDeOpcao();
+        };
+    }
+
+    private boolean printarBuscaOffline(List<Livro> itensDaConsulta, String idioma) {
+        for (int i = 0; i < itensDaConsulta.size(); i++) {
+            System.out.print("_______________________________________________________\n" +
+                    "Livro " + (i+1) + ":\n" + itensDaConsulta.get(i).toString());
+        }
+
+        if (itensDaConsulta.isEmpty()) {
+            System.err.println("Nenhum livro encontrado para " + idioma + "!");
+        }
 
         return true;
     }

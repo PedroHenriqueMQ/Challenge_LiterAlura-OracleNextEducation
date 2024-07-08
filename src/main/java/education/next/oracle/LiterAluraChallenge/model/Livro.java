@@ -17,9 +17,9 @@ public class Livro {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String titulo;
-    @OneToMany(mappedBy = "livro", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "livro", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Autor> autores = new ArrayList<>();
-    @OneToMany(mappedBy = "livro", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "livro", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Idioma> idiomas = new ArrayList<>();
     private int numDownloads;
 
@@ -36,5 +36,22 @@ public class Livro {
             this.idiomas.add(idioma);
         });
         this.numDownloads = livroDTO.numDownloads();
+    }
+
+    @Override
+    public String toString() {
+        List<String> autoresNomes = new ArrayList<>();
+        autores.forEach(autor -> autoresNomes.add(autor.getNome()));
+
+        return String.format(
+                """
+                Livro: %s
+                Autor(es): %s
+                """,
+                titulo,
+                autoresNomes.size() > 1 ?
+                        (autoresNomes + "...").replace("[","").replace("]","") :
+                        autoresNomes.toString().replace("[","").replace("]","")
+        );
     }
 }
