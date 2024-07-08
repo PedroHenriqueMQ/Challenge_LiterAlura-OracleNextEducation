@@ -24,11 +24,11 @@ Através do banco de dados PostgreSQL, o usuário pode fazer uma filtragem de li
 - Listar todos os livros salvos (com base nas opções de idioma da funcionalidade 1) e mostrar a quantidade dos mesmos
 - Listar todos os autores salvos se estiverem vivos (com base em um determinado ano escolhido pelo usuário) e mostrar a quantidade dos mesmos
 
-## ✔️ Técnicas e tecnologias utilizadas
-- Linguagem de programação Java
-- Spring Framework
+## ✔️ Tecnologias utilizadas
+- [Linguagem de programação Java](https://www.oracle.com/br/java/)
+- [Spring Framework](https://spring.io/)
 - [Gutendex API](https://gutendex.com/)
-- Banco de dados PostgreSQL
+- [Banco de dados PostgreSQL](https://www.postgresql.org/)
 
 ## 📁 Acesso ao projeto
-Você pode acessar o código fonte ou baixar o arquivo zip, ambas as formas são possíveis através da [página do github](https://github.com/PedroHenriqueMQ/Chellenge_LiterAlura-OracleNextEducation) do projeto.
+Você pode acessar o código fonte ou baixar o arquivo zip, ambas as formas estão disponíveis através da [página do github](https://github.com/PedroHenriqueMQ/Chellenge_LiterAlura-OracleNextEducation) do projeto.
