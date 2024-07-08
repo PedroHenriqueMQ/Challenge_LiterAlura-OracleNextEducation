@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface LivroRepository extends JpaRepository<Livro, Long> {
     List<Livro> findLivrosByIdiomasLinguagem(Linguagem linguagem);
+    List<Livro> findLivrosByAutoresAnoFalecimentoGreaterThan(int anoFalecimento);
 }

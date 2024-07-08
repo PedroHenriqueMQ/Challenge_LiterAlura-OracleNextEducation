@@ -19,6 +19,10 @@ public class LivroService {
         return livroRepository.findLivrosByIdiomasLinguagem(linguagem);
     }
 
+    public List<Livro> encontrarLivrosPeloAnoDeFalescimentoDosAutores (int anoReferencia) {
+        return livroRepository.findLivrosByAutoresAnoFalecimentoGreaterThan(anoReferencia);
+    }
+
     public List<Livro> encontrarTodosOsLivros () {
         return livroRepository.findAll();
     }

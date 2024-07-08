@@ -1,6 +1,7 @@
 package education.next.oracle.LiterAluraChallenge.menu;
 
 import education.next.oracle.LiterAluraChallenge.dto.LivroDTO;
+import education.next.oracle.LiterAluraChallenge.model.Autor;
 import education.next.oracle.LiterAluraChallenge.model.Linguagem;
 import education.next.oracle.LiterAluraChallenge.model.Livro;
 import education.next.oracle.LiterAluraChallenge.service.ConsumidorDeAPI;
@@ -188,7 +189,7 @@ public class Menu {
 
         return switch (proxEscolha()) {
             case 1 -> listarAutores(livrosDTO);
-            case 2 -> listarAutoresVivos(livrosDTO);
+            case 2 -> listarAutoresVivosApi(livrosDTO);
             case 3 -> escolhaDePersistenciaDosLivros(livrosDTO);
             case 4 -> false;
             default -> erroEscolhaDeOpcao();
@@ -213,7 +214,7 @@ public class Menu {
         return true;
     }
 
-    private boolean listarAutoresVivos(List<LivroDTO> livrosDTO) {
+    private boolean listarAutoresVivosApi(List<LivroDTO> livrosDTO) {
         System.out.print("Digite um ano de referência: ");
         int ano = proxEscolha();
 
@@ -296,12 +297,16 @@ public class Menu {
         printador(
                 "Qual tipo de consulta deseja fazer?",
                 new String[]{
-                        "Quantidade de livros em um idioma"
+                        "Quantidade de livros em um idioma",
+                        "Quantidade de autores vivos em determinado ano",
+                        "Voltar"
                 }
         );
 
         return switch (proxEscolha()) {
             case 1 -> buscarPorIdiomaOffline();
+            case 2 -> listarAutoresVivosOffline();
+            case 3 -> false;
             default -> erroEscolhaDeOpcao();
         };
     }
@@ -363,6 +368,34 @@ public class Menu {
 
         if (itensDaConsulta.isEmpty()) {
             System.err.println("Nenhum livro encontrado para " + idioma + "!");
+        }
+
+        return true;
+    }
+
+    private boolean listarAutoresVivosOffline() {
+        System.out.print("Digite um ano de referência: ");
+        int ano = proxEscolha();
+
+        List<Livro> livrosEncontrados = livroService.encontrarLivrosPeloAnoDeFalescimentoDosAutores(ano);
+
+        System.out.println(livrosEncontrados);
+
+        List<String> nomesAutores = livrosEncontrados.stream()
+                .flatMap(
+                        livro -> livro.getAutores().stream()
+                        .map(autor -> {
+                            String[] nomeSplit = autor.getNome().split(",");
+                            return Arrays.stream(nomeSplit).reduce((a, b) -> b + " " + a).orElse("");
+                            }
+                        )
+                )
+                .distinct()
+                .toList();
+
+        System.out.printf("Lista de autores vivos até o ano de %d:%n", ano);
+        for (int i = 0; i < nomesAutores.size(); i++) {
+            System.out.printf("Autor %d -> %s%n", i+1, nomesAutores.get(i));
         }
 
         return true;
