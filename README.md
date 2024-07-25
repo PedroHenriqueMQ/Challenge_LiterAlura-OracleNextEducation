@@ -29,6 +29,7 @@ Através do banco de dados PostgreSQL, o usuário pode fazer uma filtragem de li
 - [Spring Framework](https://spring.io/)
 - [Gutendex API](https://gutendex.com/)
 - [Banco de dados PostgreSQL](https://www.postgresql.org/)
+- [Java Net HTTP](https://docs.oracle.com/en%2Fjava%2Fjavase%2F11%2Fdocs%2Fapi%2F%2F/java.net.http/java/net/http/package-summary.html)
 
 ## 📁 Acesso ao projeto
 Você pode acessar o código fonte ou baixar o arquivo zip, ambas as formas estão disponíveis através da [página do github](https://github.com/PedroHenriqueMQ/Chellenge_LiterAlura-OracleNextEducation) do projeto.
